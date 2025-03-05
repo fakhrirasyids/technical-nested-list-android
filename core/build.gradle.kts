@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
 }
@@ -7,20 +7,19 @@ plugins {
 apply(from = "../shared_dependencies.gradle")
 
 android {
-    namespace = "com.fakhrirasyids.technicalnestedlist"
+    namespace = "com.fakhrirasyids.technicalnestedlist.core"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.fakhrirasyids.technicalnestedlist"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+
+        buildConfigField("String", "APP_ENDPOINT", "\"https://v2.jokeapi.dev/\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
     buildFeatures {
-        viewBinding = true
+        buildConfig = true
     }
     buildTypes {
         release {
@@ -42,6 +41,8 @@ android {
 
 dependencies {
 
-    // modules
-    implementation(project(":core"))
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
 }

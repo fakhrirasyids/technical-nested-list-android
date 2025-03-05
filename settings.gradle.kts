@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Technical Nested List"
 include(":app")
- 
+include(":core")
