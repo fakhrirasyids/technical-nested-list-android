@@ -1,5 +1,6 @@
 package com.fakhrirasyids.technicalnestedlist.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,8 +31,8 @@ class MainViewModel @Inject constructor(
     private val _isErrorCategories = MutableLiveData<Boolean>()
     val isErrorCategories: LiveData<Boolean> = _isErrorCategories
 
-    private val _errorCategories = MutableLiveData<Event<String>>()
-    val errorCategories: LiveData<Event<String>> get() = _errorCategories
+    private val _errorCategories = MutableLiveData<String>()
+    val errorCategories: LiveData<String> get() = _errorCategories
 
     private val _errorJokes = MutableLiveData<Event<String>>()
     val errorJokes: LiveData<Event<String>> get() = _errorJokes
@@ -57,7 +58,7 @@ class MainViewModel @Inject constructor(
                     is Resource.Error -> {
                         _isLoadingCategories.postValue(false)
                         _isErrorCategories.postValue(true)
-                        _errorCategories.postValue(Event(result.error))
+                        _errorCategories.postValue(result.error)
                     }
                 }
             }
@@ -89,7 +90,6 @@ class MainViewModel @Inject constructor(
                     }
 
                     is Resource.Error -> {
-                        _errorCategories.postValue(Event(result.error))
                         _categories.postValue(
                             _categories.value?.map {
                                 if (it.categoryName == categoryName) it.copy(isExpanded = false)
@@ -107,6 +107,7 @@ class MainViewModel @Inject constructor(
         _categories.value?.let { currentCategories ->
             val updatedList = currentCategories
                 .sortedByDescending { it.categoryName == categoryName }
+                .mapIndexed { index, category -> category.copy(index = index) }
 
             _categories.postValue(updatedList)
         }

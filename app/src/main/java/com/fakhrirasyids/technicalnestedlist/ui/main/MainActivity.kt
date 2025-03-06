@@ -1,6 +1,7 @@
 package com.fakhrirasyids.technicalnestedlist.ui.main
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -38,9 +39,7 @@ class MainActivity : AppCompatActivity() {
             isErrorCategories.observe(this@MainActivity, ::showError)
 
             errorCategories.observe(this@MainActivity) { message ->
-                message.getContentIfNotHandled()?.let {
-                    binding.tvError.text = it
-                }
+                binding.tvError.text = message
             }
         }
     }
@@ -57,15 +56,20 @@ class MainActivity : AppCompatActivity() {
             categoryAccordionAdapter.apply {
                 onGoToTopClick = { category ->
                     mainViewModel.goToTop(category)
+                    rvCategories.postDelayed({
+                        rvCategories.smoothScrollToPosition(0)
+                    }, 200)
                 }
 
                 onAddJokeClick = { category ->
                     mainViewModel.addJokesToCategory(category, true)
                 }
 
-                onExpansionClick = { category ->
+                onExpansionClick = { category, position ->
                     mainViewModel.addJokesToCategory(category)
                     mainViewModel.toggleExpansion(category)
+
+                    notifyItemChanged(position)
                 }
             }
 
@@ -88,7 +92,6 @@ class MainActivity : AppCompatActivity() {
                 isVisible = isLoading
             }
 
-            layoutError.isVisible = !isLoading
             swipeRefreshLayout.isActivated = !isLoading
             rvCategories.isVisible = !isLoading
         }
@@ -97,7 +100,6 @@ class MainActivity : AppCompatActivity() {
     private fun showError(isError: Boolean) {
         binding.apply {
             layoutError.isVisible = isError
-            shimmerCategories.isVisible = !isError
             rvCategories.isVisible = !isError
         }
     }

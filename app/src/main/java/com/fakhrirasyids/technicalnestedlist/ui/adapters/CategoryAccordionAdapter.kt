@@ -13,7 +13,7 @@ import com.fakhrirasyids.technicalnestedlist.core.domain.model.Categories
 import com.fakhrirasyids.technicalnestedlist.databinding.ItemCategoryRowBinding
 
 class CategoryAccordionAdapter(
-    var onExpansionClick: ((String) -> Unit)? = null,
+    var onExpansionClick: ((String, Int) -> Unit)? = null,
     var onAddJokeClick: ((String) -> Unit)? = null,
     var onGoToTopClick: ((String) -> Unit)? = null,
     var onJokeClick: ((String) -> Unit)? = null,
@@ -60,26 +60,29 @@ class CategoryAccordionAdapter(
                 tvCategoryName.text = category.categoryName
 
                 btnGoToTop.apply {
-                    text = if (adapterPosition == 0) ContextCompat.getString(
+                    text = if (category.index == 0) ContextCompat.getString(
                         root.context,
                         R.string.text_top
                     ) else ContextCompat.getString(root.context, R.string.text_go_to_top)
-                    isEnabled = adapterPosition != 0
+                    isEnabled = category.index != 0
                 }
 
                 recyclerViewJokes.apply {
-                    adapter = jokeAdapter
-                    layoutManager = LinearLayoutManager(binding.root.context)
+                    if (adapter != jokeAdapter) {
+                        adapter = jokeAdapter
+                        layoutManager = LinearLayoutManager(binding.root.context)
+                    }
                 }
 
-                jokeAdapter.submitList(category.jokes)
+                if (jokeAdapter.currentList != category.jokes) {
+                    jokeAdapter.submitList(category.jokes)
+                }
 
                 updateLoadingState(isLoadingJokes)
                 toggleExpansion(category.isExpanded)
 
                 root.setOnClickListener {
-                    onExpansionClick?.invoke(category.categoryName)
-                    notifyItemChanged(adapterPosition)
+                    onExpansionClick?.invoke(category.categoryName, adapterPosition)
                 }
 
                 btnGoToTop.setOnClickListener {

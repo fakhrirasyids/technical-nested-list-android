@@ -14,11 +14,11 @@ import kotlinx.coroutines.flow.map
 abstract class NetworkBoundResource<ResultType, RequestType> {
 
     fun asFlow() = flow {
+        emit(Resource.Loading)
+
         val localData = loadFromDb().firstOrNull()
 
         if (shouldFetch(localData)) {
-            emit(Resource.Loading)
-
             runCatching {
                 val apiResponse = fetchFromNetwork()
                 saveNetworkResult(apiResponse)
