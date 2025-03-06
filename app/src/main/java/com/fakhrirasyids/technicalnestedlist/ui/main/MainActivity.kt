@@ -1,6 +1,7 @@
 package com.fakhrirasyids.technicalnestedlist.ui.main
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -123,8 +124,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun showError(isError: Boolean) {
         binding.apply {
-            layoutError.isVisible = isError
-            rvCategories.isVisible = !isError
+            if (isError) {
+                layoutError.visibility = View.VISIBLE
+                rvCategories.visibility = View.GONE
+            } else {
+                layoutError.visibility = View.GONE
+                rvCategories.visibility = View.VISIBLE
+            }
         }
     }
 }
