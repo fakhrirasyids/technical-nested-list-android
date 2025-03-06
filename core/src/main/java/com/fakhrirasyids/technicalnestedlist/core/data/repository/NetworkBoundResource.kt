@@ -1,7 +1,7 @@
 package com.fakhrirasyids.technicalnestedlist.core.data.repository
 
-import android.util.Log
 import com.fakhrirasyids.technicalnestedlist.core.utils.Resource
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 
 abstract class NetworkBoundResource<ResultType, RequestType> {
 
-    fun asFlow() = flow {
+    fun asFlow(dispatcher: CoroutineDispatcher) = flow {
         emit(Resource.Loading)
 
         val localData = loadFromDb().firstOrNull()
@@ -30,7 +30,7 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
         } else {
             emitAll(loadFromDb().map { Resource.Success(it) })
         }
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(dispatcher)
 
     private suspend fun FlowCollector<Resource<ResultType>>.handleNetworkFailure(e: Throwable) {
         val errorMessage = e.message.toString()
@@ -38,6 +38,7 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
             runCatching {
                 val fallbackResponse = fetchFromNetworkWithoutParam()
                 saveNetworkResult(fallbackResponse)
+            }.onSuccess {
                 emitAll(loadFromDb().map { Resource.Success(it) })
             }.onFailure {
                 emit(Resource.Error(it.message.toString()))

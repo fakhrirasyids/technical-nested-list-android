@@ -1,4 +1,4 @@
-package com.fakhrirasyids.technicalnestedlist.utils
+package com.fakhrirasyids.technicalnestedlist.utils.helpers
 
 open class Event<out T>(private val content: T) {
     private var hasBeenHandled = false
@@ -7,8 +7,11 @@ open class Event<out T>(private val content: T) {
         return if (hasBeenHandled) {
             null
         } else {
-            hasBeenHandled = true
             content
         }
+    }
+
+    fun handleContent() {
+        hasBeenHandled = true
     }
 }

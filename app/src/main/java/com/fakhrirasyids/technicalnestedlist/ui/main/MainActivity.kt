@@ -1,13 +1,14 @@
 package com.fakhrirasyids.technicalnestedlist.ui.main
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fakhrirasyids.technicalnestedlist.databinding.ActivityMainBinding
 import com.fakhrirasyids.technicalnestedlist.ui.adapters.CategoryAccordionAdapter
+import com.fakhrirasyids.technicalnestedlist.utils.enums.DialogType
+import com.fakhrirasyids.technicalnestedlist.utils.helpers.Dialog
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -18,6 +19,9 @@ class MainActivity : AppCompatActivity() {
 
     private val categoryAccordionAdapter = CategoryAccordionAdapter()
 
+    private val customDialog: Dialog by lazy {
+        Dialog(this@MainActivity)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,12 +38,28 @@ class MainActivity : AppCompatActivity() {
     private fun observeViewModel() {
         mainViewModel.apply {
             isLoadingCategories.observe(this@MainActivity, ::showCategoryLoading)
-            categories.observe(this@MainActivity, categoryAccordionAdapter::submitList)
             loadingJokesMap.observe(this@MainActivity, categoryAccordionAdapter::setLoadingState)
+            categories.observe(this@MainActivity, categoryAccordionAdapter::submitList)
             isErrorCategories.observe(this@MainActivity, ::showError)
 
             errorCategories.observe(this@MainActivity) { message ->
                 binding.tvError.text = message
+            }
+
+            errorJokes.observe(this@MainActivity) { event ->
+                event.getContentIfNotHandled()?.let { message ->
+                    customDialog.showDialog(DialogType.ERROR, message, onDismiss = {
+                        event.handleContent()
+                    })
+                }
+            }
+
+            dialogJokes.observe(this@MainActivity) { event ->
+                event.getContentIfNotHandled()?.let { message ->
+                    customDialog.showDialog(DialogType.INFO, message, onDismiss = {
+                        event.handleContent()
+                    })
+                }
             }
         }
     }
@@ -70,6 +90,10 @@ class MainActivity : AppCompatActivity() {
                     mainViewModel.toggleExpansion(category)
 
                     notifyItemChanged(position)
+                }
+
+                onJokeClick = { joke ->
+                    mainViewModel.setDialogJokes(joke)
                 }
             }
 

@@ -49,5 +49,5 @@ class MainRepositoryImpl @Inject constructor(
 
             override fun shouldFetch(data: List<String>?): Boolean =
                 shouldFetch || data.isNullOrEmpty()
-        }.asFlow()
+        }.asFlow(Dispatchers.IO)
 }

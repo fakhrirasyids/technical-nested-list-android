@@ -9,9 +9,12 @@ import com.fakhrirasyids.technicalnestedlist.core.domain.model.Categories
 import com.fakhrirasyids.technicalnestedlist.core.domain.usecase.addjokes.AddJokesUseCase
 import com.fakhrirasyids.technicalnestedlist.core.domain.usecase.getcategories.GetCategoriesUseCase
 import com.fakhrirasyids.technicalnestedlist.core.utils.Resource
-import com.fakhrirasyids.technicalnestedlist.utils.Event
+import com.fakhrirasyids.technicalnestedlist.utils.helpers.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +26,7 @@ class MainViewModel @Inject constructor(
     val isLoadingCategories: LiveData<Boolean> = _isLoadingCategories
 
     private val _loadingJokesMap = MutableLiveData<Map<String, Boolean>>()
-    val loadingJokesMap: LiveData<Map<String, Boolean>> get() = _loadingJokesMap
+    val loadingJokesMap: LiveData<Map<String, Boolean>> = _loadingJokesMap
 
     private val _categories = MutableLiveData<List<Categories>>()
     val categories: LiveData<List<Categories>> get() = _categories
@@ -37,6 +40,9 @@ class MainViewModel @Inject constructor(
     private val _errorJokes = MutableLiveData<Event<String>>()
     val errorJokes: LiveData<Event<String>> get() = _errorJokes
 
+    private val _dialogJokes = MutableLiveData<Event<String>>()
+    val dialogJokes: LiveData<Event<String>> get() = _dialogJokes
+
     init {
         fetchCategories()
     }
@@ -46,19 +52,24 @@ class MainViewModel @Inject constructor(
             getCategoriesUseCase().collect { result ->
                 when (result) {
                     is Resource.Loading -> {
-                        _isErrorCategories.postValue(false)
-                        _isLoadingCategories.postValue(true)
+                        _isErrorCategories.value = false
+                        _isLoadingCategories.value = true
+                        _loadingJokesMap.value = emptyMap()
                     }
 
                     is Resource.Success -> {
-                        _isLoadingCategories.postValue(false)
-                        _categories.postValue(result.data)
+                        _isLoadingCategories.value = false
+                        _categories.value = result.data
+                        _loadingJokesMap.value = (
+                                result.data.associate { category -> category.categoryName to false }
+                                )
                     }
 
                     is Resource.Error -> {
-                        _isLoadingCategories.postValue(false)
-                        _isErrorCategories.postValue(true)
-                        _errorCategories.postValue(result.error)
+                        _isLoadingCategories.value = false
+                        _isErrorCategories.value = true
+                        _errorCategories.value = result.error
+                        _loadingJokesMap.value = emptyMap()
                     }
                 }
             }
@@ -71,37 +82,56 @@ class MainViewModel @Inject constructor(
                 return@launch
             }
 
-            _loadingJokesMap.postValue(_loadingJokesMap.value.orEmpty() + (categoryName to true))
+            _loadingJokesMap.value = _loadingJokesMap.value.orEmpty().toMutableMap().apply {
+                this[categoryName] = true
+            }
 
             addJokesUseCase(categoryName, shouldFetch).collect { result ->
                 when (result) {
-                    is Resource.Loading -> _loadingJokesMap.postValue(
-                        _loadingJokesMap.value.orEmpty() + (categoryName to true)
-                    )
+                    is Resource.Loading -> {
+                        _loadingJokesMap.value =
+                            _loadingJokesMap.value.orEmpty().toMutableMap().apply {
+                                this[categoryName] = true
+                            }
+                    }
 
                     is Resource.Success -> {
-                        _categories.postValue(
-                            _categories.value?.map {
-                                if (it.categoryName == categoryName) it.copy(jokes = result.data.toMutableList())
-                                else it
+                        val updatedCategories = _categories.value?.map { category ->
+                            if (category.categoryName == categoryName) {
+                                category.copy(jokes = result.data)
+                            } else {
+                                category
                             }
-                        )
-                        _loadingJokesMap.postValue(_loadingJokesMap.value.orEmpty() + (categoryName to false))
+                        } ?: emptyList()
+
+                        _categories.value = updatedCategories
+
+                        _loadingJokesMap.value =
+                            _loadingJokesMap.value.orEmpty().toMutableMap().apply {
+                                this[categoryName] = false
+                            }
                     }
 
                     is Resource.Error -> {
-                        _categories.postValue(
-                            _categories.value?.map {
-                                if (it.categoryName == categoryName) it.copy(isExpanded = false)
-                                else it
+                        val updatedCategories = _categories.value?.map {
+                            if (it.categoryName == categoryName) it.copy(isExpanded = false)
+                            else it
+                        } ?: emptyList()
+
+                        _categories.value = updatedCategories
+
+                        _loadingJokesMap.value =
+                            _loadingJokesMap.value.orEmpty().toMutableMap().apply {
+                                this[categoryName] = false
                             }
-                        )
-                        _loadingJokesMap.postValue(_loadingJokesMap.value.orEmpty() + (categoryName to false))
+
+                        _errorJokes.value = Event(result.error)
                     }
                 }
             }
         }
     }
+
 
     fun goToTop(categoryName: String) {
         _categories.value?.let { currentCategories ->
@@ -109,13 +139,19 @@ class MainViewModel @Inject constructor(
                 .sortedByDescending { it.categoryName == categoryName }
                 .mapIndexed { index, category -> category.copy(index = index) }
 
-            _categories.postValue(updatedList)
+            _categories.value = updatedList
         }
     }
 
     fun toggleExpansion(categoryName: String) {
-        _categories.postValue(_categories.value?.map {
+        val updatedValue = _categories.value?.map {
             it.copy(isExpanded = it.categoryName == categoryName != it.isExpanded)
-        })
+        } ?: emptyList()
+
+        _categories.value = updatedValue
+    }
+
+    fun setDialogJokes(joke: String) {
+        _dialogJokes.value = Event(joke)
     }
 }

@@ -8,9 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.fakhrirasyids.technicalnestedlist.databinding.ItemJokesRowBinding
 
 class JokeAdapter(
-    private val onJokeClick: (String) -> Unit
+    private val onJokeClick: ((String) -> Unit)? = null
 ) : ListAdapter<String, JokeAdapter.JokeViewHolder>(DIFF_CALLBACK) {
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder {
         val binding =
             ItemJokesRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,8 +25,12 @@ class JokeAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(joke: String) {
-            binding.tvJokeText.text = joke
-            binding.root.setOnClickListener { onJokeClick(joke) }
+            binding.apply {
+                tvJokeText.text = joke
+                layoutJokes.setOnClickListener {
+                    onJokeClick?.invoke(joke)
+                }
+            }
         }
     }
 

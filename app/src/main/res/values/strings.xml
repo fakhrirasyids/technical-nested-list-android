@@ -10,4 +10,8 @@
     <!-- Content Description -->
     <string name="menu_dropdown">Menu Dropdown</string>
     <string name="error_image">Error Image</string>
+    <string name="dialog_image">Dialog Image</string>
+
+    <!-- Utils -->
+    <string name="text_close">Close</string>
 </resources>

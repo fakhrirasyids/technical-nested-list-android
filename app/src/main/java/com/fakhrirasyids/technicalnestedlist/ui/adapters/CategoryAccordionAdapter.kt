@@ -1,5 +1,7 @@
 package com.fakhrirasyids.technicalnestedlist.ui.adapters
 
+import android.content.res.ColorStateList
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -50,6 +52,18 @@ class CategoryAccordionAdapter(
         holder.bind(category, isLoading)
     }
 
+    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int, payloads: List<Any>) {
+        val category = getItem(position)
+
+        if (payloads.isNotEmpty()) {
+            val isLoading = payloads[0] as Boolean
+            holder.updateLoadingState(isLoading)
+        } else {
+            val isLoading = loadingJokesMap[category.categoryName] ?: false
+            holder.bind(category, isLoading)
+        }
+    }
+
     inner class CategoryViewHolder(private val binding: ItemCategoryRowBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -64,9 +78,15 @@ class CategoryAccordionAdapter(
                         root.context,
                         R.string.text_top
                     ) else ContextCompat.getString(root.context, R.string.text_go_to_top)
-                    isEnabled = category.index != 0
-                }
 
+                    isEnabled = category.index != 0
+                    backgroundTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(
+                            root.context,
+                            if (category.index == 0) android.R.color.darker_gray else R.color.primaryOrange
+                        )
+                    )
+                }
                 recyclerViewJokes.apply {
                     if (adapter != jokeAdapter) {
                         adapter = jokeAdapter
@@ -79,7 +99,7 @@ class CategoryAccordionAdapter(
                 }
 
                 updateLoadingState(isLoadingJokes)
-                toggleExpansion(category.isExpanded)
+                toggleExpansion(category.isExpanded, category.jokes.size)
 
                 root.setOnClickListener {
                     onExpansionClick?.invoke(category.categoryName, adapterPosition)
@@ -96,18 +116,22 @@ class CategoryAccordionAdapter(
             }
         }
 
-        private fun updateLoadingState(isLoadingJokes: Boolean) {
-            binding.shimmerJokes.apply {
-                isVisible = isLoadingJokes
-                if (isLoadingJokes) startShimmer() else stopShimmer()
+        fun updateLoadingState(isLoadingJokes: Boolean) {
+            binding.apply {
+                shimmerJokes.apply {
+                    isVisible = isLoadingJokes
+                    if (isLoadingJokes) startShimmer() else stopShimmer()
+                }
+
+                btnAddJoke.isEnabled = !isLoadingJokes
             }
         }
 
-        private fun toggleExpansion(expand: Boolean) {
+        private fun toggleExpansion(expand: Boolean, jokesCount: Int) {
             binding.apply {
                 ivDropdown.rotation = if (expand) 180f else 0f
                 recyclerViewJokes.isVisible = expand
-                btnAddJoke.isVisible = expand
+                btnAddJoke.isVisible = expand && jokesCount < 6
             }
         }
     }
@@ -118,7 +142,8 @@ class CategoryAccordionAdapter(
                 oldItem.categoryName == newItem.categoryName
 
             override fun areContentsTheSame(oldItem: Categories, newItem: Categories): Boolean =
-                oldItem == newItem && oldItem.isExpanded == newItem.isExpanded
+                oldItem == newItem && oldItem.isExpanded == newItem.isExpanded &&
+                        oldItem.jokes.size == newItem.jokes.size
         }
     }
 }
