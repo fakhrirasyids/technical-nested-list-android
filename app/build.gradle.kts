@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.dagger.hilt)
 }
 
 apply(from = "../shared_dependencies.gradle")
@@ -42,6 +43,12 @@ android {
 
 dependencies {
 
-    // modules
+    // Modules
     implementation(project(":core"))
+
+    // SwipeRefresh
+    implementation(libs.androidx.swiperefreshlayout)
+
+    // Shimmer
+    implementation(libs.shimmer)
 }

@@ -9,6 +9,6 @@ class RemoteDataSource @Inject constructor(
     suspend fun getCategories() =
         categoriesApiServices.getCategories()
 
-    suspend fun getChildCategories(category: String) =
+    suspend fun getChildCategories(category: String = "any") =
         categoriesApiServices.getChildCategories(category)
 }

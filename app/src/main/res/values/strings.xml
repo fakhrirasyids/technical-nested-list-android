@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Technical Nested List</string>
+
+    <!-- Main Screen -->
+    <string name="text_go_to_top">Go to Top</string>
+    <string name="text_top">Top</string>
+    <string name="text_add_more_jokes">Add More Jokes</string>
+    <string name="main_instruction">Swipe down to Refresh</string>
+
+    <!-- Content Description -->
+    <string name="menu_dropdown">Menu Dropdown</string>
+    <string name="error_image">Error Image</string>
 </resources>

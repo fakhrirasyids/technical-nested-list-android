@@ -1,5 +1,6 @@
 package com.fakhrirasyids.technicalnestedlist.core.di
 
+import com.fakhrirasyids.technicalnestedlist.core.data.local.LocalDataSource
 import com.fakhrirasyids.technicalnestedlist.core.data.remote.RemoteDataSource
 import com.fakhrirasyids.technicalnestedlist.core.data.repository.MainRepositoryImpl
 import com.fakhrirasyids.technicalnestedlist.core.domain.repo.MainRepository
@@ -15,6 +16,9 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideMainRepository(remoteDataSource: RemoteDataSource): MainRepository =
-        MainRepositoryImpl(remoteDataSource)
+    fun provideMainRepository(
+        remoteDataSource: RemoteDataSource,
+        localDataSource: LocalDataSource
+    ): MainRepository =
+        MainRepositoryImpl(remoteDataSource, localDataSource)
 }

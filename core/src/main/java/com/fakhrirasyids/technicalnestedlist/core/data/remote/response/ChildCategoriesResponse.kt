@@ -10,6 +10,9 @@ data class ChildCategoriesResponse(
 	@field:SerializedName("error")
 	val error: Boolean? = null,
 
+	@field:SerializedName("code")
+	val code: Int? = null,
+
 	@field:SerializedName("jokes")
 	val jokes: List<JokesItemResponse?>? = null
 )
