@@ -1,7 +1,7 @@
 package com.fakhrirasyids.technicalnestedlist.core.data.repository
 
 import com.fakhrirasyids.technicalnestedlist.core.data.local.LocalDataSource
-import com.fakhrirasyids.technicalnestedlist.core.data.mapper.CategoriesMapper.toDomain
+import com.fakhrirasyids.technicalnestedlist.core.data.mapper.toDomain
 import com.fakhrirasyids.technicalnestedlist.core.data.remote.RemoteDataSource
 import com.fakhrirasyids.technicalnestedlist.core.domain.repo.MainRepository
 import com.fakhrirasyids.technicalnestedlist.core.utils.Resource

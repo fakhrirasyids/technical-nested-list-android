@@ -4,12 +4,10 @@ import com.fakhrirasyids.technicalnestedlist.core.data.remote.response.Categorie
 import com.fakhrirasyids.technicalnestedlist.core.data.remote.response.ChildCategoriesResponse
 import com.fakhrirasyids.technicalnestedlist.core.domain.model.Categories
 
-object CategoriesMapper {
-    fun CategoriesResponse.toDomain(): List<Categories> =
-        categories?.mapIndexedNotNull { index, category ->
-            category?.let { Categories(index = index, categoryName = it) }
-        } ?: emptyList()
+fun CategoriesResponse.toDomain(): List<Categories> =
+    categories?.mapIndexedNotNull { index, category ->
+        category?.let { Categories(index = index, categoryName = it) }
+    } ?: emptyList()
 
-    fun ChildCategoriesResponse.toDomain(): List<String> =
-        jokes?.mapNotNull { it?.joke } ?: emptyList()
-}
+fun ChildCategoriesResponse.toDomain(): List<String> =
+    jokes?.mapNotNull { it?.joke } ?: emptyList()

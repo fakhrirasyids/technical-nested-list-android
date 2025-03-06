@@ -1,7 +1,6 @@
 package com.fakhrirasyids.technicalnestedlist.ui.adapters
 
 import android.content.res.ColorStateList
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -71,6 +70,7 @@ class CategoryAccordionAdapter(
 
         fun bind(category: Categories, isLoadingJokes: Boolean) {
             binding.apply {
+                tvCategoryIndex.text = StringBuilder("${category.index + 1}.")
                 tvCategoryName.text = category.categoryName
 
                 btnGoToTop.apply {
@@ -99,7 +99,7 @@ class CategoryAccordionAdapter(
                 }
 
                 updateLoadingState(isLoadingJokes)
-                toggleExpansion(category.isExpanded, category.jokes.size)
+                toggleExpansion(category.isExpanded, category.jokes.size, isLoadingJokes)
 
                 root.setOnClickListener {
                     onExpansionClick?.invoke(category.categoryName, adapterPosition)
@@ -127,9 +127,10 @@ class CategoryAccordionAdapter(
             }
         }
 
-        private fun toggleExpansion(expand: Boolean, jokesCount: Int) {
+        private fun toggleExpansion(expand: Boolean, jokesCount: Int, isLoadingJokes: Boolean) {
             binding.apply {
                 ivDropdown.rotation = if (expand) 180f else 0f
+                shimmerJokes.isVisible = expand && isLoadingJokes
                 recyclerViewJokes.isVisible = expand
                 btnAddJoke.isVisible = expand && jokesCount < 6
             }

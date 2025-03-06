@@ -1,6 +1,5 @@
 package com.fakhrirasyids.technicalnestedlist.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,10 +10,7 @@ import com.fakhrirasyids.technicalnestedlist.core.domain.usecase.getcategories.G
 import com.fakhrirasyids.technicalnestedlist.core.utils.Resource
 import com.fakhrirasyids.technicalnestedlist.utils.helpers.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
