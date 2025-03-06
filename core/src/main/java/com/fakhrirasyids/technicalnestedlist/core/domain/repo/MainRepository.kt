@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface MainRepository {
     fun getCategories(): Flow<Resource<List<Categories>>>
-    fun addRandomJokes(category: String): Flow<Resource<List<String>>>
+    fun addRandomJokes(category: String, shouldFetch: Boolean = false): Flow<Resource<List<String>>>
 }

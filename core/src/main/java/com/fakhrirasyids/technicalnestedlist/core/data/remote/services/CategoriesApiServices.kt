@@ -12,7 +12,7 @@ interface CategoriesApiServices {
 
     @GET(CHILD_CATEGORIES_ENDPOINT)
     suspend fun getChildCategories(
-        @Path("category") category: String,
+        @Path("category") category: String = "any",
         @Query("type") type: String = "single",
         @Query("amount") amount: Int = 2
     ): ChildCategoriesResponse
@@ -21,6 +21,6 @@ interface CategoriesApiServices {
 
         // Endpoints
         private const val CATEGORIES_ENDPOINT = "categories"
-        private const val CHILD_CATEGORIES_ENDPOINT = "jokes/{category}"
+        private const val CHILD_CATEGORIES_ENDPOINT = "joke/{category}"
     }
 }

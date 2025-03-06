@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.dagger.hilt)
 }
 
 apply(from = "../shared_dependencies.gradle")
@@ -13,6 +14,7 @@ android {
     defaultConfig {
         minSdk = 24
 
+        buildConfigField("String", "DATABASE_NAME", "\"TechnicalNestedList.db\"")
         buildConfigField("String", "APP_ENDPOINT", "\"https://v2.jokeapi.dev/\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -45,4 +47,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
+
+    // Room
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 }
